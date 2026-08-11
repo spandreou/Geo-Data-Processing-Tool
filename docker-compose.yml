@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./GeoDataProcessingTool
+      dockerfile: Dockerfile
+    container_name: geo-backend
+    ports:
+      - "5000:8080"
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: geo-frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    restart: always
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: geo-cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required}
+    depends_on:
+      - frontend

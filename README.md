@@ -1,6 +1,8 @@
-# Geo Data Processing Tool
+# Geo Tool
 
-Geo Data Processing Tool is a full-stack application that ingests CSV geospatial data, clusters nearby points, and visualizes the results on an interactive map with analytics.
+Geo Tool is a full-stack geospatial and real-estate analytics application that ingests CSV datasets, clusters geographic data, identifies outliers, filters property listings, and visualizes operational results on one interactive map.
+
+Canonical repository: https://github.com/spandreou/geo-tool
 
 ## Features
 
@@ -62,14 +64,14 @@ The frontend runs on `http://localhost:5173` (default Vite port).
 
 Accepted columns (case-insensitive):
 
-- `latitude`
-- `longitude`
-- `value` (preferred) or `price` (fallback)
+- **Latitude:** `latitude`, `lat`, `y`, `centroidlatitude`, `centroidlat`, `centroid_lat`, `centroid_latitude`
+- **Longitude:** `longitude`, `lon`, `lng`, `x`, `centroidlongitude`, `centroidlon`, `centroidlng`, `centroid_lon`, `centroid_lng`, `centroid_longitude`
+- **Value/Price:** `value`, `price`, `amount`, `cost`, `val`, `revenue`, `points`, `count`
 
 Example:
 
 ```csv
-latitude,longitude,price
+lat,lon,amount
 40.6401,22.9444,"$1,234.50"
 40.6405,22.9448,"€980"
 ```
@@ -81,4 +83,3 @@ latitude,longitude,price
 - Form field: `file`
 
 Response: JSON list of clusters with centroid, point count, and average value.
-

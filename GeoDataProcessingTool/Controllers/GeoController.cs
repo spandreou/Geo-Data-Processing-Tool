@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using CsvHelper.Configuration;
 using GeoDataProcessingTool.Models;
 using GeoDataProcessingTool.Services;
@@ -11,7 +11,6 @@ namespace GeoDataProcessingTool.Controllers;
 [Route("api/[controller]")]
 public class GeoController : ControllerBase
 {
-    private const double ClusterRadiusMeters = 500d;
     private readonly GeoClusteringService _clusteringService;
 
     public GeoController(GeoClusteringService clusteringService)
@@ -20,11 +19,16 @@ public class GeoController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromForm] IFormFile? file)
+    public async Task<IActionResult> Upload([FromForm] IFormFile? file, [FromQuery] double radiusMeters = 500d)
     {
         if (file is null || file.Length == 0)
         {
             return BadRequest(new { message = "Please upload a non-empty CSV file." });
+        }
+
+        if (radiusMeters <= 0)
+        {
+            return BadRequest(new { message = "Radius must be a positive number." });
         }
 
         try
@@ -41,8 +45,8 @@ public class GeoController : ControllerBase
             };
 
             using var csv = new CsvReader(reader, config);
-            var points = ReadPoints(csv);
-            var clusters = _clusteringService.Cluster(points, ClusterRadiusMeters);
+            var points = await ReadPointsAsync(csv);
+            var clusters = _clusteringService.Cluster(points, radiusMeters);
 
             return Ok(clusters);
         }
@@ -60,37 +64,65 @@ public class GeoController : ControllerBase
         }
     }
 
-    private static List<GeoPoint> ReadPoints(CsvReader csv)
+    private static readonly string[] LatitudeKeys = new[]
     {
-        if (!csv.Read() || !csv.ReadHeader())
+        "latitude", "lat", "y", "centroidlatitude", "centroidlat", "centroid_lat", "centroid_latitude"
+    };
+
+    private static readonly string[] LongitudeKeys = new[]
+    {
+        "longitude", "lon", "lng", "x", "centroidlongitude", "centroidlon", "centroidlng", "centroid_lon", "centroid_lng", "centroid_longitude"
+    };
+
+    private static readonly string[] ValueKeys = new[]
+    {
+        "value", "price", "amount", "cost", "val", "revenue", "points", "count"
+    };
+
+    private static bool TryFindIndex(Dictionary<string, int> headerIndexes, string[] keys, out int foundIndex)
+    {
+        foundIndex = -1;
+        foreach (var key in keys)
+        {
+            if (headerIndexes.TryGetValue(key, out foundIndex))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static async Task<List<GeoPoint>> ReadPointsAsync(CsvReader csv)
+    {
+        if (!await csv.ReadAsync() || !csv.ReadHeader())
         {
             throw new FormatException("CSV file is empty or missing headers.");
         }
 
         var headerIndexes = BuildHeaderIndexes(csv.HeaderRecord ?? Array.Empty<string>());
 
-        if (!headerIndexes.TryGetValue("latitude", out var latitudeIndex) ||
-            !headerIndexes.TryGetValue("longitude", out var longitudeIndex))
+        if (!TryFindIndex(headerIndexes, LatitudeKeys, out var latitudeIndex))
         {
-            throw new FormatException("CSV must include latitude and longitude columns (case-insensitive).");
+            throw new FormatException($"CSV must include a latitude column (accepted: {string.Join(", ", LatitudeKeys)}).");
         }
 
-        var hasValue = headerIndexes.TryGetValue("value", out var valueIndex);
-        var hasPrice = headerIndexes.TryGetValue("price", out var priceIndex);
-
-        if (!hasValue && !hasPrice)
+        if (!TryFindIndex(headerIndexes, LongitudeKeys, out var longitudeIndex))
         {
-            throw new FormatException("CSV must include a value column or a price column (case-insensitive).");
+            throw new FormatException($"CSV must include a longitude column (accepted: {string.Join(", ", LongitudeKeys)}).");
         }
 
-        var selectedValueIndex = hasValue ? valueIndex : priceIndex;
+        if (!TryFindIndex(headerIndexes, ValueKeys, out var valueIndex))
+        {
+            throw new FormatException($"CSV must include a value or price column (accepted: {string.Join(", ", ValueKeys)}).");
+        }
+
         var points = new List<GeoPoint>();
 
-        while (csv.Read())
+        while (await csv.ReadAsync())
         {
             var latitudeRaw = csv.GetField(latitudeIndex);
             var longitudeRaw = csv.GetField(longitudeIndex);
-            var valueRaw = csv.GetField(selectedValueIndex);
+            var valueRaw = csv.GetField(valueIndex);
 
             if (!TryParseCoordinate(latitudeRaw, out var latitude) ||
                 !TryParseCoordinate(longitudeRaw, out var longitude) ||
@@ -109,7 +141,7 @@ public class GeoController : ControllerBase
 
         if (points.Count == 0)
         {
-            throw new FormatException("CSV contains no valid rows after parsing latitude, longitude, and value/price.");
+            throw new FormatException("CSV contains no valid rows after parsing coordinates and value.");
         }
 
         return points;

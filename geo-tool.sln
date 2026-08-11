@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoDataProcessingTool", "GeoDataProcessingTool\GeoDataProcessingTool.csproj", "{0E5CA452-4946-967D-D8B1-43B08A776B51}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E5CA452-4946-967D-D8B1-43B08A776B51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E5CA452-4946-967D-D8B1-43B08A776B51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E5CA452-4946-967D-D8B1-43B08A776B51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E5CA452-4946-967D-D8B1-43B08A776B51}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3D35E2D-CE33-46EC-9885-C6DCA39EA39C}
+	EndGlobalSection
+EndGlobal

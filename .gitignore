@@ -19,7 +19,9 @@ yarn-error.log*
 frontend/node_modules/
 frontend/dist/
 
+# Generated QA evidence
+frontend/output/
+
 # .NET
 **/bin/
 **/obj/
-

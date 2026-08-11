@@ -6,6 +6,15 @@ This file explains how this project should look up homelab server context and cr
 
 Do not store real secrets in this repository. Record only paths, variable names, service names, and safe commands.
 
+## Local Workspace Paths
+
+This project may be opened from either Windows checkout:
+
+- Desktop PC: `C:\Users\Spyros\OneDrive\Υπολογιστής\projects\geo-tool`
+- Laptop: `C:\Users\thugs\Desktop\projects\geo-tool`
+
+Both paths are valid checkouts on different computers. Use the path that exists on the active computer; do not rewrite, copy, or synchronize one checkout into the other unless explicitly requested.
+
 ## SSH Access
 
 Preferred SSH target:
@@ -30,8 +39,6 @@ Use these locations only as lookup references:
 /home/spandreou/Desktop/Credentials
 /home/spandreou/projects/homelab/.env
 /home/spandreou/projects/homelab/.env.example
-/opt/municipal-police/MunicipalPoliceProject/.env.server.pilot
-/opt/municipal-police/MunicipalPoliceProject/.env*.example
 ```
 
 Local template for this project:
@@ -53,7 +60,7 @@ No verified homelab deployment was found for this project.
 Local stack hints:
 
 ```txt
-Geo Data Processing Tool.sln
+geo-tool.sln
 GeoDataProcessingTool/GeoDataProcessingTool.csproj
 frontend/package.json
 frontend/.env.example
